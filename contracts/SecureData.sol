@@ -7,10 +7,6 @@ import {SepoliaConfig} from "@fhevm/solidity/config/ZamaConfig.sol";
 /// @title SecureData Contract for Encrypted Personal Contact Information
 /// @author secure-data project
 /// @notice Stores encrypted personal contact information using FHEVM for privacy preservation
-/// @dev Implements fully homomorphic encryption for secure contact data storage on blockchain
-/// @dev Supports both FHE encrypted submissions and simple encrypted fallbacks
-/// @dev Main contract for managing encrypted contact information
-/// @dev Inherits from SepoliaConfig for network-specific FHEVM configuration
 contract SecureData is SepoliaConfig {
     // Owner pattern for administrative functions
     address public owner;
