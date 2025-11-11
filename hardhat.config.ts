@@ -1,5 +1,4 @@
 import "@fhevm/hardhat-plugin";
-// Updated for SecureData contract deployment
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-verify";
