@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Theater, Shield, Sparkles } from "lucide-react";
 
-const Hero = () => {
+interface HeroProps {
+  onEnterArena?: () => void;
+}
+
+const Hero = ({ onEnterArena }: HeroProps) => {
   return (
     <section className="pt-32 pb-20 px-4 relative overflow-hidden">
       {/* Stage spotlight effect */}
@@ -52,6 +56,7 @@ const Hero = () => {
         <div className="flex justify-center gap-4">
           <Button
             size="lg"
+            onClick={onEnterArena}
             className="bg-primary text-primary-foreground hover:bg-primary/90 glow-lg text-lg px-8 mask-shimmer"
           >
             Join Arena
