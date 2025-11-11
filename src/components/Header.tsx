@@ -4,8 +4,8 @@ import Logo from "./Logo";
 
 const Header = () => {
   const handleConnectWallet = () => {
-    // Rainbow Wallet integration would go here
-    console.log("Connect Rainbow Wallet");
+    // Rainbow Wallet integration to verify participation
+    console.log("Connect Rainbow Wallet for Arena Entry");
   };
 
   return (
@@ -15,10 +15,10 @@ const Header = () => {
           <Logo />
           <Button
             onClick={handleConnectWallet}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 glow transition-all"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 glow transition-all mask-shimmer"
           >
             <Wallet className="mr-2 h-4 w-4" />
-            Connect Wallet
+            Enter Arena
           </Button>
         </div>
       </div>

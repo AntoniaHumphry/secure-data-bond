@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import PipelineSection from "@/components/PipelineSection";
+import ArenaStage from "@/components/ArenaStage";
 import HowItWorks from "@/components/HowItWorks";
 import Footer from "@/components/Footer";
 
@@ -10,7 +10,7 @@ const Index = () => {
       <Header />
       <main className="pb-16">
         <Hero />
-        <PipelineSection />
+        <ArenaStage />
         <HowItWorks />
       </main>
       <Footer />
