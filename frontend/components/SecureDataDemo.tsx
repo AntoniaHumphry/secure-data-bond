@@ -8,10 +8,6 @@ import { useInMemoryStorage } from "@/hooks/useInMemoryStorage";
 import { useEthersSigner } from "@/hooks/useEthersSigner";
 import type { ValidationResult, ContactFormData } from "@/types/contact";
 
-/*
- * Modern SecureData React component for encrypted contact information management
- * Features modern card-based UI design inspired by ZamaBank
- */
 export const SecureDataDemo = () => {
   const { address, isConnected, chainId } = useAccount();
   const { data: walletClient } = useWalletClient();
