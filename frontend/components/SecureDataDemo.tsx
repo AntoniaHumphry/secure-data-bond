@@ -208,7 +208,10 @@ export const SecureDataDemo = () => {
           <h3>🔐 SecureData</h3>
         </div>
         <div className="status-message status-info">
-          {!mounted ? 'Loading SecureData application...' : 'Initializing FHE encryption system...'}
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+            <span>{!mounted ? 'Loading SecureData application...' : 'Initializing FHE encryption system...'}</span>
+          </div>
         </div>
       </div>
     );
