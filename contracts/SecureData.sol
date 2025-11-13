@@ -423,4 +423,17 @@ contract SecureData is SepoliaConfig {
             info.decrypted
         );
     }
+
+    /// @notice Get contract version for compatibility checks
+    /// @return version Contract version string
+    function getVersion() external pure returns (string memory) {
+        return "1.0.0";
+    }
+
+    /// @notice Emergency stop functionality for contract owner
+    /// @param pause True to pause, false to unpause
+    function emergencyStop(bool pause) external onlyOwner {
+        // Implementation placeholder for emergency controls
+        // In a full implementation, this would pause/unpause contract functions
+    }
 }
