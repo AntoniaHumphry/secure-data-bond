@@ -3,6 +3,11 @@ import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
 /**
+ * Enhanced Hardhat tasks for SecureData contract testing and interaction
+ * Supports both encrypted and mock FHEVM operations
+ */
+
+/**
  * Tutorial: Deploy and Interact Locally (--network localhost)
  * ===========================================================
  *
