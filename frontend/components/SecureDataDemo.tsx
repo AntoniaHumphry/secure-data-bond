@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect, useCallback, memo } from "react";
 import { useAccount, useWalletClient } from 'wagmi';
 import { useSecureData } from "@/hooks/useSecureData";
 import { useFhevm } from "@/fhevm/useFhevm";
@@ -8,7 +8,7 @@ import { useInMemoryStorage } from "@/hooks/useInMemoryStorage";
 import { useEthersSigner } from "@/hooks/useEthersSigner";
 import type { ValidationResult, ContactFormData } from "@/types/contact";
 
-export const SecureDataDemo = () => {
+const SecureDataDemoComponent = () => {
   const { address, isConnected, chainId } = useAccount();
   const { data: walletClient } = useWalletClient();
   const { storage } = useInMemoryStorage();
@@ -48,7 +48,10 @@ export const SecureDataDemo = () => {
   }, []);
 
   // Like althlete project, enable FHEVM only when connected
-  const fhevmEnabled = isConnected && mounted && fhevmDelayPassed && typeof window !== 'undefined' && !!window?.ethereum;
+  const fhevmEnabled = useMemo(() =>
+    isConnected && mounted && fhevmDelayPassed && typeof window !== 'undefined' && !!window?.ethereum,
+    [isConnected, mounted, fhevmDelayPassed]
+  );
 
   // Real-time form validation
   const validateField = (field: string, value: string) => {
@@ -88,10 +91,10 @@ export const SecureDataDemo = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleFieldBlur = (field: string) => {
+  const handleFieldBlur = useCallback((field: string) => {
     setTouchedFields(prev => ({...prev, [field]: true}));
     validateField(field, field === 'phone' ? phoneInput : field === 'email' ? emailInput : emergencyInput);
-  };
+  }, [phoneInput, emailInput, emergencyInput]);
 
   // Like althlete project, enable mock mode for local Hardhat network (chainId 31337)
   const initialMockChains = {
@@ -561,3 +564,5 @@ export const SecureDataDemo = () => {
     </>
   );
 };
+
+export const SecureDataDemo = memo(SecureDataDemoComponent);
