@@ -164,13 +164,16 @@ contract SecureData is SepoliaConfig {
     event DataIntegrityChecked(address indexed user, bool isValid, uint8 integrityScore);
     event DecryptionFinalized(address indexed user, string name, string email);
 
-    /// @notice Submit encrypted contact information (FHE mode)
-    /// @param phoneHandle FHE encrypted phone number handle
-    /// @param phoneInputProof Proof for phone encryption
-    /// @param emailHandle FHE encrypted email hash handle
-    /// @param emailInputProof Proof for email encryption
-    /// @param emergencyHandle FHE encrypted emergency contact handle
-    /// @param emergencyInputProof Proof for emergency contact encryption
+    /// @notice Submit encrypted contact information using FHE
+    /// @dev Stores fully homomorphically encrypted contact data on blockchain
+    /// @dev Only the user can decrypt their own data using private key
+    /// @param phoneHandle FHE encrypted phone number handle (uint256 ciphertext)
+    /// @param phoneInputProof ZK proof verifying phone number encryption integrity
+    /// @param emailHandle FHE encrypted email hash handle (uint256 ciphertext)
+    /// @param emailInputProof ZK proof verifying email encryption integrity
+    /// @param emergencyHandle FHE encrypted emergency contact handle (uint256 ciphertext)
+    /// @param emergencyInputProof ZK proof verifying emergency contact encryption integrity
+    /// @custom:security Only callable by data owner, encryption verified by FHEVM
     function submitContactInfo(
         uint256 phoneHandle,
         bytes calldata phoneInputProof,
@@ -464,7 +467,8 @@ contract SecureData is SepoliaConfig {
     }
 
     /// @notice Get contract version for compatibility checks
-    /// @return version Contract version string
+    /// @dev Returns semantic version string for API compatibility
+    /// @return version Contract version in semantic versioning format (MAJOR.MINOR.PATCH)
     function getVersion() external pure returns (string memory) {
         return "1.0.0";
     }
