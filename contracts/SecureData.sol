@@ -11,13 +11,43 @@ contract SecureData is SepoliaConfig {
     // Owner pattern for administrative functions
     address public owner;
 
+    // Admin mapping for additional administrative access
+    mapping(address => bool) public admins;
+
     modifier onlyOwner() {
         require(msg.sender == owner, "Not owner");
         _;
     }
 
+    modifier onlyAdmin() {
+        require(msg.sender == owner || admins[msg.sender], "Not authorized");
+        _;
+    }
+
     constructor() {
         owner = msg.sender;
+        admins[msg.sender] = true; // Owner is also admin
+    }
+
+    /// @notice Add an admin (only owner can call)
+    /// @param admin Address to grant admin privileges
+    function addAdmin(address admin) external onlyOwner {
+        require(admin != address(0), "Invalid admin address");
+        admins[admin] = true;
+    }
+
+    /// @notice Remove an admin (only owner can call)
+    /// @param admin Address to revoke admin privileges
+    function removeAdmin(address admin) external onlyOwner {
+        require(admins[admin], "Address is not admin");
+        admins[admin] = false;
+    }
+
+    /// @notice Check if address is admin
+    /// @param account Address to check
+    /// @return bool True if address is admin
+    function isAdmin(address account) external view returns (bool) {
+        return admins[account];
     }
 
     /// @notice Validate contact information format
