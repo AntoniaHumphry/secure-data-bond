@@ -21,6 +21,8 @@ export const SecureDataDemo = () => {
   const [mounted, setMounted] = useState(false);
   const [validationResult, setValidationResult] = useState<ValidationResult | null>(null);
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
+  const [formErrors, setFormErrors] = useState<{phone?: string; email?: string; emergency?: string}>({});
+  const [touchedFields, setTouchedFields] = useState<{phone?: boolean; email?: boolean; emergency?: boolean}>({});
 
   // Ensure component only renders after hydration to prevent hydration mismatch
   useEffect(() => {
@@ -47,6 +49,49 @@ export const SecureDataDemo = () => {
 
   // Like althlete project, enable FHEVM only when connected
   const fhevmEnabled = isConnected && mounted && fhevmDelayPassed && typeof window !== 'undefined' && !!window?.ethereum;
+
+  // Real-time form validation
+  const validateField = (field: string, value: string) => {
+    const errors = {...formErrors};
+
+    switch (field) {
+      case 'phone':
+        if (!value) {
+          errors.phone = 'Phone number is required';
+        } else if (!/^\d{10,15}$/.test(value.replace(/[\s\-\(\)]/g, ''))) {
+          errors.phone = 'Please enter a valid phone number (10-15 digits)';
+        } else {
+          delete errors.phone;
+        }
+        break;
+      case 'email':
+        if (!value) {
+          errors.email = 'Email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          errors.email = 'Please enter a valid email address';
+        } else {
+          delete errors.email;
+        }
+        break;
+      case 'emergency':
+        if (!value) {
+          errors.emergency = 'Emergency contact is required';
+        } else if (!/^\d{10,15}$/.test(value.replace(/[\s\-\(\)]/g, ''))) {
+          errors.emergency = 'Please enter a valid emergency contact number';
+        } else {
+          delete errors.emergency;
+        }
+        break;
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleFieldBlur = (field: string) => {
+    setTouchedFields(prev => ({...prev, [field]: true}));
+    validateField(field, field === 'phone' ? phoneInput : field === 'email' ? emailInput : emergencyInput);
+  };
 
   // Like althlete project, enable mock mode for local Hardhat network (chainId 31337)
   const initialMockChains = {
@@ -370,12 +415,16 @@ export const SecureDataDemo = () => {
             <div className="input-group">
               <input
                 type="tel"
-                className="contact-input"
+                className={`contact-input ${touchedFields.phone && formErrors.phone ? 'input-error' : ''}`}
                 placeholder="Enter your phone number"
                 value={phoneInput}
                 onChange={(e) => setPhoneInput(e.target.value)}
+                onBlur={() => handleFieldBlur('phone')}
                 required
               />
+              {touchedFields.phone && formErrors.phone && (
+                <div className="error-message">{formErrors.phone}</div>
+              )}
             </div>
 
             <label className="form-label">
@@ -385,12 +434,16 @@ export const SecureDataDemo = () => {
             <div className="input-group">
               <input
                 type="email"
-                className="contact-input"
+                className={`contact-input ${touchedFields.email && formErrors.email ? 'input-error' : ''}`}
                 placeholder="Enter your email address"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
+                onBlur={() => handleFieldBlur('email')}
                 required
               />
+              {touchedFields.email && formErrors.email && (
+                <div className="error-message">{formErrors.email}</div>
+              )}
             </div>
 
             <label className="form-label">
@@ -400,12 +453,16 @@ export const SecureDataDemo = () => {
             <div className="input-group">
               <input
                 type="tel"
-                className="contact-input"
+                className={`contact-input ${touchedFields.emergency && formErrors.emergency ? 'input-error' : ''}`}
                 placeholder="Enter emergency contact number"
                 value={emergencyInput}
                 onChange={(e) => setEmergencyInput(e.target.value)}
+                onBlur={() => handleFieldBlur('emergency')}
                 required
               />
+              {touchedFields.emergency && formErrors.emergency && (
+                <div className="error-message">{formErrors.emergency}</div>
+              )}
             </div>
 
             <div className="button-group">
