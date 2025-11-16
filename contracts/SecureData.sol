@@ -34,6 +34,7 @@ contract SecureData is SepoliaConfig {
     function addAdmin(address admin) external onlyOwner {
         require(admin != address(0), "Invalid admin address");
         admins[admin] = true;
+        emit AdminAdded(admin, msg.sender, block.timestamp);
     }
 
     /// @notice Remove an admin (only owner can call)
@@ -41,6 +42,7 @@ contract SecureData is SepoliaConfig {
     function removeAdmin(address admin) external onlyOwner {
         require(admins[admin], "Address is not admin");
         admins[admin] = false;
+        emit AdminRemoved(admin, msg.sender, block.timestamp);
     }
 
     /// @notice Check if address is admin
@@ -49,6 +51,13 @@ contract SecureData is SepoliaConfig {
     function isAdmin(address account) external view returns (bool) {
         return admins[account];
     }
+
+    // Events for better traceability
+    event ContactDataSubmitted(address indexed user, uint256 timestamp);
+    event ContactDataRetrieved(address indexed user, address indexed retriever, uint256 timestamp);
+    event AdminAdded(address indexed admin, address indexed addedBy, uint256 timestamp);
+    event AdminRemoved(address indexed admin, address indexed removedBy, uint256 timestamp);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner, uint256 timestamp);
 
     /// @notice Validate contact information format
     /// @param phone Phone number to validate
