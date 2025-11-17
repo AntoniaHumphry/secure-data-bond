@@ -436,6 +436,40 @@ export const SecureDataDemo = () => {
             <p>{validationResult.errorMessage}</p>
           </div>
         )}
+
+        {/* Data Export Section */}
+        <div className="export-section">
+          <h4>📥 Export Your Data</h4>
+          <p>Download your encrypted contact information for backup or analysis</p>
+          <button
+            type="button"
+            className="export-btn"
+            onClick={() => {
+              const exportData = {
+                timestamp: new Date().toISOString(),
+                network: chainId,
+                wallet: address,
+                contactData: {
+                  phone: phoneInput,
+                  email: emailInput,
+                  emergency: emergencyInput,
+                },
+                validation: validationResult,
+                fheEnabled: canSubmit,
+              };
+              const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `secure-data-export-${Date.now()}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            disabled={!phoneInput && !emailInput && !emergencyInput}
+          >
+            📄 Export Contact Data
+          </button>
+        </div>
       </div>
 
       {/* Information Card */}
