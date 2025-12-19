@@ -6,7 +6,7 @@ import { useSecureData } from "@/hooks/useSecureData";
 import { useFhevm } from "@/fhevm/useFhevm";
 import { useInMemoryStorage } from "@/hooks/useInMemoryStorage";
 import { useEthersSigner } from "@/hooks/useEthersSigner";
-import type { ValidationResult, ContactFormData } from "@/types/contact";
+import type { ValidationResult } from "@/types/contact";
 
 const SecureDataDemoComponent = () => {
   const { address, isConnected, chainId } = useAccount();
@@ -54,7 +54,7 @@ const SecureDataDemoComponent = () => {
   );
 
   // Real-time form validation
-  const validateField = (field: string, value: string) => {
+  const validateField = useCallback((field: string, value: string) => {
     const errors = {...formErrors};
 
     switch (field) {
@@ -89,12 +89,12 @@ const SecureDataDemoComponent = () => {
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
-  };
+  }, [formErrors]);
 
   const handleFieldBlur = useCallback((field: string) => {
     setTouchedFields(prev => ({...prev, [field]: true}));
     validateField(field, field === 'phone' ? phoneInput : field === 'email' ? emailInput : emergencyInput);
-  }, [phoneInput, emailInput, emergencyInput]);
+  }, [phoneInput, emailInput, emergencyInput, validateField]);
 
   // Like althlete project, enable mock mode for local Hardhat network (chainId 31337)
   const initialMockChains = {
@@ -169,15 +169,17 @@ const SecureDataDemoComponent = () => {
       return;
     }
 
-    // Basic phone validation (should be 2 digits for demo)
-    if (phoneInput.length !== 2 || isNaN(Number(phoneInput))) {
-      setValidationResult({isValid: false, errorMessage: "Phone number should be 2 digits"});
+    // Basic phone validation (should be valid phone number format)
+    const cleanPhone = phoneInput.replace(/\D/g, '');
+    if (cleanPhone.length < 10 || cleanPhone.length > 15) {
+      setValidationResult({isValid: false, errorMessage: "Phone number should be 10-15 digits"});
       return;
     }
 
-    // Basic emergency validation (should be 2 digits for demo)
-    if (emergencyInput.length !== 2 || isNaN(Number(emergencyInput))) {
-      setValidationResult({isValid: false, errorMessage: "Emergency contact should be 2 digits"});
+    // Basic emergency validation (should be valid phone number format)
+    const cleanEmergency = emergencyInput.replace(/\D/g, '');
+    if (cleanEmergency.length < 10 || cleanEmergency.length > 15) {
+      setValidationResult({isValid: false, errorMessage: "Emergency contact should be 10-15 digits"});
       return;
     }
 
@@ -185,21 +187,6 @@ const SecureDataDemoComponent = () => {
 
     // Set submitting state
     setIsSubmittingForm(true);
-    try {
-      await submitContactInfo(
-        parseInt(phoneInput),
-        parseInt(emailInput),
-        parseInt(emergencyInput),
-        emailInput,
-        {
-          phone: phoneInput.trim(),
-          email: emailInput.trim(),
-          emergency: emergencyInput.trim()
-        }
-      );
-    } finally {
-      setIsSubmittingForm(false);
-    }
 
     // Store original user inputs for display purposes
     const originalPhone = phoneInput.trim();
@@ -207,7 +194,10 @@ const SecureDataDemoComponent = () => {
     const originalEmergency = emergencyInput.trim();
 
     // Convert inputs to numbers for contract submission
-    const phoneNum = parseInt(phoneInput.replace(/\D/g, '')) || 0;
+    // For demo contract compatibility, use last 2 digits of phone number (10-99 range)
+    const phoneDigits = phoneInput.replace(/\D/g, '');
+    const phoneNum = phoneDigits.length >= 2 ?
+      Math.max(10, Math.min(99, parseInt(phoneDigits.slice(-2)))) : 42;
 
     // Convert email to numeric representation (first 8 chars as ASCII codes)
     const emailStr = emailInput.trim();
@@ -218,7 +208,10 @@ const SecureDataDemoComponent = () => {
     // Ensure emailNum is within uint8 range (0-255) for contract compatibility
     emailNum = emailNum % 256;
 
-    const emergencyNum = parseInt(emergencyInput.replace(/\D/g, '')) || 0;
+    // For demo contract compatibility, use last 2 digits of emergency number (10-99 range)
+    const emergencyDigits = emergencyInput.replace(/\D/g, '');
+    const emergencyNum = emergencyDigits.length >= 2 ?
+      Math.max(10, Math.min(99, parseInt(emergencyDigits.slice(-2)))) : 24;
 
     // Store original inputs in lastSubmittedData before submitting
     // This will be used for decryption display
@@ -229,7 +222,11 @@ const SecureDataDemoComponent = () => {
       emailStr: originalEmail, // Store original email string
     };
 
-    await submitContactInfo(phoneNum, emailNum, emergencyNum, emailStr, lastSubmittedData);
+    try {
+      await submitContactInfo(phoneNum, emailNum, emergencyNum, emailStr, lastSubmittedData);
+    } finally {
+      setIsSubmittingForm(false);
+    }
   }, [phoneInput, emailInput, emergencyInput, submitContactInfo, setValidationResult, setIsSubmittingForm]);
 
   const handleDecrypt = async () => {
@@ -241,8 +238,14 @@ const SecureDataDemoComponent = () => {
 
 
   const handleValidate = async () => {
-    const phoneNum = parseInt(phoneInput.replace(/\D/g, '')) || 0;
-    const emergencyNum = parseInt(emergencyInput.replace(/\D/g, '')) || 0;
+    // Use the same logic as submission for validation
+    const phoneDigits = phoneInput.replace(/\D/g, '');
+    const phoneNum = phoneDigits.length >= 2 ?
+      Math.max(10, Math.min(99, parseInt(phoneDigits.slice(-2)))) : 42;
+
+    const emergencyDigits = emergencyInput.replace(/\D/g, '');
+    const emergencyNum = emergencyDigits.length >= 2 ?
+      Math.max(10, Math.min(99, parseInt(emergencyDigits.slice(-2)))) : 24;
 
     const result = await validateContactInfo(phoneNum, emailInput, emergencyNum);
     setValidationResult(result);

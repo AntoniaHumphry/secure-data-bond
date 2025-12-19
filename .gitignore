@@ -12,6 +12,7 @@ coverage
 dist
 node_modules
 types
+!frontend/types
 deployments
 tmp
 

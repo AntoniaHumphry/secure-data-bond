@@ -26,17 +26,23 @@ import type {
 export interface SecureDataInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "addAdmin"
+      | "admins"
       | "checkDataIntegrity"
+      | "emergencyStop"
       | "finalizeDecryption"
       | "finalizePublicDecryption"
       | "finalizeResults"
       | "getContactInfo"
       | "getDecryptedContactInfo"
       | "getEncryptedHandles"
+      | "getVersion"
       | "hasContactInfo"
+      | "isAdmin"
       | "isContactInfoComplete"
       | "owner"
       | "protocolId"
+      | "removeAdmin"
       | "submitContactInfo"
       | "submitContactInfoSimple"
       | "updateContactField"
@@ -46,14 +52,30 @@ export interface SecureDataInterface extends Interface {
 
   getEvent(
     nameOrSignatureOrTopic:
+      | "AdminAdded"
+      | "AdminRemoved"
+      | "ContactDataRetrieved"
+      | "ContactDataSubmitted"
       | "ContactInfoDecrypted"
       | "ContactInfoSubmitted"
       | "ContactInfoUpdated"
+      | "DataIntegrityChecked"
+      | "DecryptionFinalized"
+      | "OwnershipTransferred"
   ): EventFragment;
 
   encodeFunctionData(
+    functionFragment: "addAdmin",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "admins", values: [AddressLike]): string;
+  encodeFunctionData(
     functionFragment: "checkDataIntegrity",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "emergencyStop",
+    values: [boolean]
   ): string;
   encodeFunctionData(
     functionFragment: "finalizeDecryption",
@@ -101,7 +123,15 @@ export interface SecureDataInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "getVersion",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "hasContactInfo",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isAdmin",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -112,6 +142,10 @@ export interface SecureDataInterface extends Interface {
   encodeFunctionData(
     functionFragment: "protocolId",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeAdmin",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "submitContactInfo",
@@ -141,8 +175,14 @@ export interface SecureDataInterface extends Interface {
     values: [BigNumberish, string, BigNumberish]
   ): string;
 
+  decodeFunctionResult(functionFragment: "addAdmin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "admins", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "checkDataIntegrity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "emergencyStop",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -169,16 +209,22 @@ export interface SecureDataInterface extends Interface {
     functionFragment: "getEncryptedHandles",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getVersion", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "hasContactInfo",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "isAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isContactInfoComplete",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "protocolId", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "removeAdmin",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "submitContactInfo",
     data: BytesLike
@@ -199,6 +245,81 @@ export interface SecureDataInterface extends Interface {
     functionFragment: "validateContactInfo",
     data: BytesLike
   ): Result;
+}
+
+export namespace AdminAddedEvent {
+  export type InputTuple = [
+    admin: AddressLike,
+    addedBy: AddressLike,
+    timestamp: BigNumberish
+  ];
+  export type OutputTuple = [admin: string, addedBy: string, timestamp: bigint];
+  export interface OutputObject {
+    admin: string;
+    addedBy: string;
+    timestamp: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace AdminRemovedEvent {
+  export type InputTuple = [
+    admin: AddressLike,
+    removedBy: AddressLike,
+    timestamp: BigNumberish
+  ];
+  export type OutputTuple = [
+    admin: string,
+    removedBy: string,
+    timestamp: bigint
+  ];
+  export interface OutputObject {
+    admin: string;
+    removedBy: string;
+    timestamp: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace ContactDataRetrievedEvent {
+  export type InputTuple = [
+    user: AddressLike,
+    retriever: AddressLike,
+    timestamp: BigNumberish
+  ];
+  export type OutputTuple = [
+    user: string,
+    retriever: string,
+    timestamp: bigint
+  ];
+  export interface OutputObject {
+    user: string;
+    retriever: string;
+    timestamp: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace ContactDataSubmittedEvent {
+  export type InputTuple = [user: AddressLike, timestamp: BigNumberish];
+  export type OutputTuple = [user: string, timestamp: bigint];
+  export interface OutputObject {
+    user: string;
+    timestamp: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace ContactInfoDecryptedEvent {
@@ -239,10 +360,69 @@ export namespace ContactInfoSubmittedEvent {
 }
 
 export namespace ContactInfoUpdatedEvent {
-  export type InputTuple = [user: AddressLike];
-  export type OutputTuple = [user: string];
+  export type InputTuple = [user: AddressLike, fieldType: BigNumberish];
+  export type OutputTuple = [user: string, fieldType: bigint];
   export interface OutputObject {
     user: string;
+    fieldType: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace DataIntegrityCheckedEvent {
+  export type InputTuple = [
+    user: AddressLike,
+    isValid: boolean,
+    integrityScore: BigNumberish
+  ];
+  export type OutputTuple = [
+    user: string,
+    isValid: boolean,
+    integrityScore: bigint
+  ];
+  export interface OutputObject {
+    user: string;
+    isValid: boolean;
+    integrityScore: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace DecryptionFinalizedEvent {
+  export type InputTuple = [user: AddressLike, name: string, email: string];
+  export type OutputTuple = [user: string, name: string, email: string];
+  export interface OutputObject {
+    user: string;
+    name: string;
+    email: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [
+    previousOwner: AddressLike,
+    newOwner: AddressLike,
+    timestamp: BigNumberish
+  ];
+  export type OutputTuple = [
+    previousOwner: string,
+    newOwner: string,
+    timestamp: bigint
+  ];
+  export interface OutputObject {
+    previousOwner: string;
+    newOwner: string;
+    timestamp: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -293,11 +473,17 @@ export interface SecureData extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  addAdmin: TypedContractMethod<[admin: AddressLike], [void], "nonpayable">;
+
+  admins: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+
   checkDataIntegrity: TypedContractMethod<
     [user: AddressLike],
     [[boolean, bigint] & { isValid: boolean; integrityScore: bigint }],
-    "view"
+    "nonpayable"
   >;
+
+  emergencyStop: TypedContractMethod<[pause: boolean], [void], "nonpayable">;
 
   finalizeDecryption: TypedContractMethod<
     [
@@ -371,7 +557,11 @@ export interface SecureData extends BaseContract {
     "view"
   >;
 
+  getVersion: TypedContractMethod<[], [string], "view">;
+
   hasContactInfo: TypedContractMethod<[user: AddressLike], [boolean], "view">;
+
+  isAdmin: TypedContractMethod<[account: AddressLike], [boolean], "view">;
 
   isContactInfoComplete: TypedContractMethod<
     [user: AddressLike],
@@ -382,6 +572,8 @@ export interface SecureData extends BaseContract {
   owner: TypedContractMethod<[], [string], "view">;
 
   protocolId: TypedContractMethod<[], [bigint], "view">;
+
+  removeAdmin: TypedContractMethod<[admin: AddressLike], [void], "nonpayable">;
 
   submitContactInfo: TypedContractMethod<
     [
@@ -429,12 +621,21 @@ export interface SecureData extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "addAdmin"
+  ): TypedContractMethod<[admin: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "admins"
+  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "checkDataIntegrity"
   ): TypedContractMethod<
     [user: AddressLike],
     [[boolean, bigint] & { isValid: boolean; integrityScore: bigint }],
-    "view"
+    "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "emergencyStop"
+  ): TypedContractMethod<[pause: boolean], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "finalizeDecryption"
   ): TypedContractMethod<
@@ -514,8 +715,14 @@ export interface SecureData extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getVersion"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "hasContactInfo"
   ): TypedContractMethod<[user: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isAdmin"
+  ): TypedContractMethod<[account: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "isContactInfoComplete"
   ): TypedContractMethod<[user: AddressLike], [boolean], "view">;
@@ -525,6 +732,9 @@ export interface SecureData extends BaseContract {
   getFunction(
     nameOrSignature: "protocolId"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "removeAdmin"
+  ): TypedContractMethod<[admin: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "submitContactInfo"
   ): TypedContractMethod<
@@ -573,6 +783,34 @@ export interface SecureData extends BaseContract {
   >;
 
   getEvent(
+    key: "AdminAdded"
+  ): TypedContractEvent<
+    AdminAddedEvent.InputTuple,
+    AdminAddedEvent.OutputTuple,
+    AdminAddedEvent.OutputObject
+  >;
+  getEvent(
+    key: "AdminRemoved"
+  ): TypedContractEvent<
+    AdminRemovedEvent.InputTuple,
+    AdminRemovedEvent.OutputTuple,
+    AdminRemovedEvent.OutputObject
+  >;
+  getEvent(
+    key: "ContactDataRetrieved"
+  ): TypedContractEvent<
+    ContactDataRetrievedEvent.InputTuple,
+    ContactDataRetrievedEvent.OutputTuple,
+    ContactDataRetrievedEvent.OutputObject
+  >;
+  getEvent(
+    key: "ContactDataSubmitted"
+  ): TypedContractEvent<
+    ContactDataSubmittedEvent.InputTuple,
+    ContactDataSubmittedEvent.OutputTuple,
+    ContactDataSubmittedEvent.OutputObject
+  >;
+  getEvent(
     key: "ContactInfoDecrypted"
   ): TypedContractEvent<
     ContactInfoDecryptedEvent.InputTuple,
@@ -593,8 +831,73 @@ export interface SecureData extends BaseContract {
     ContactInfoUpdatedEvent.OutputTuple,
     ContactInfoUpdatedEvent.OutputObject
   >;
+  getEvent(
+    key: "DataIntegrityChecked"
+  ): TypedContractEvent<
+    DataIntegrityCheckedEvent.InputTuple,
+    DataIntegrityCheckedEvent.OutputTuple,
+    DataIntegrityCheckedEvent.OutputObject
+  >;
+  getEvent(
+    key: "DecryptionFinalized"
+  ): TypedContractEvent<
+    DecryptionFinalizedEvent.InputTuple,
+    DecryptionFinalizedEvent.OutputTuple,
+    DecryptionFinalizedEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferred"
+  ): TypedContractEvent<
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
+  >;
 
   filters: {
+    "AdminAdded(address,address,uint256)": TypedContractEvent<
+      AdminAddedEvent.InputTuple,
+      AdminAddedEvent.OutputTuple,
+      AdminAddedEvent.OutputObject
+    >;
+    AdminAdded: TypedContractEvent<
+      AdminAddedEvent.InputTuple,
+      AdminAddedEvent.OutputTuple,
+      AdminAddedEvent.OutputObject
+    >;
+
+    "AdminRemoved(address,address,uint256)": TypedContractEvent<
+      AdminRemovedEvent.InputTuple,
+      AdminRemovedEvent.OutputTuple,
+      AdminRemovedEvent.OutputObject
+    >;
+    AdminRemoved: TypedContractEvent<
+      AdminRemovedEvent.InputTuple,
+      AdminRemovedEvent.OutputTuple,
+      AdminRemovedEvent.OutputObject
+    >;
+
+    "ContactDataRetrieved(address,address,uint256)": TypedContractEvent<
+      ContactDataRetrievedEvent.InputTuple,
+      ContactDataRetrievedEvent.OutputTuple,
+      ContactDataRetrievedEvent.OutputObject
+    >;
+    ContactDataRetrieved: TypedContractEvent<
+      ContactDataRetrievedEvent.InputTuple,
+      ContactDataRetrievedEvent.OutputTuple,
+      ContactDataRetrievedEvent.OutputObject
+    >;
+
+    "ContactDataSubmitted(address,uint256)": TypedContractEvent<
+      ContactDataSubmittedEvent.InputTuple,
+      ContactDataSubmittedEvent.OutputTuple,
+      ContactDataSubmittedEvent.OutputObject
+    >;
+    ContactDataSubmitted: TypedContractEvent<
+      ContactDataSubmittedEvent.InputTuple,
+      ContactDataSubmittedEvent.OutputTuple,
+      ContactDataSubmittedEvent.OutputObject
+    >;
+
     "ContactInfoDecrypted(address,uint8,uint8,uint8)": TypedContractEvent<
       ContactInfoDecryptedEvent.InputTuple,
       ContactInfoDecryptedEvent.OutputTuple,
@@ -617,7 +920,7 @@ export interface SecureData extends BaseContract {
       ContactInfoSubmittedEvent.OutputObject
     >;
 
-    "ContactInfoUpdated(address)": TypedContractEvent<
+    "ContactInfoUpdated(address,uint8)": TypedContractEvent<
       ContactInfoUpdatedEvent.InputTuple,
       ContactInfoUpdatedEvent.OutputTuple,
       ContactInfoUpdatedEvent.OutputObject
@@ -626,6 +929,39 @@ export interface SecureData extends BaseContract {
       ContactInfoUpdatedEvent.InputTuple,
       ContactInfoUpdatedEvent.OutputTuple,
       ContactInfoUpdatedEvent.OutputObject
+    >;
+
+    "DataIntegrityChecked(address,bool,uint8)": TypedContractEvent<
+      DataIntegrityCheckedEvent.InputTuple,
+      DataIntegrityCheckedEvent.OutputTuple,
+      DataIntegrityCheckedEvent.OutputObject
+    >;
+    DataIntegrityChecked: TypedContractEvent<
+      DataIntegrityCheckedEvent.InputTuple,
+      DataIntegrityCheckedEvent.OutputTuple,
+      DataIntegrityCheckedEvent.OutputObject
+    >;
+
+    "DecryptionFinalized(address,string,string)": TypedContractEvent<
+      DecryptionFinalizedEvent.InputTuple,
+      DecryptionFinalizedEvent.OutputTuple,
+      DecryptionFinalizedEvent.OutputObject
+    >;
+    DecryptionFinalized: TypedContractEvent<
+      DecryptionFinalizedEvent.InputTuple,
+      DecryptionFinalizedEvent.OutputTuple,
+      DecryptionFinalizedEvent.OutputObject
+    >;
+
+    "OwnershipTransferred(address,address,uint256)": TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
     >;
   };
 }

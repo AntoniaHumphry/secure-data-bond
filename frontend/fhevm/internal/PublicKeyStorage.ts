@@ -113,6 +113,11 @@ export async function publicKeyStorageGet(aclAddress: `0x${string}`): Promise<{
   publicKey?: FhevmInstanceConfigPublicKey;
   publicParams: FhevmInstanceConfigPublicParams | null;
 }> {
+  // Ensure we're on the client side before accessing IndexedDB
+  if (typeof window === "undefined") {
+    return { publicParams: null };
+  }
+
   const db = await _getDB();
   if (!db) {
     return { publicParams: null };
@@ -168,6 +173,11 @@ export async function publicKeyStorageSet(
   publicKey: FhevmStoredPublicKey | null,
   publicParams: FhevmStoredPublicParams | null
 ) {
+  // Ensure we're on the client side before accessing IndexedDB
+  if (typeof window === "undefined") {
+    return;
+  }
+
   assertFhevmStoredPublicKey(publicKey);
   assertFhevmStoredPublicParams(publicParams);
 

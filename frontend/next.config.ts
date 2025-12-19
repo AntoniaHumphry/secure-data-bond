@@ -29,6 +29,13 @@ const nextConfig: NextConfig = {
   // Force webpack instead of Turbopack to avoid runtime errors
   webpack: (config, { dev }) => {
     // Ensure we're using webpack for stability
+
+    // Fix for MetaMask SDK trying to import React Native modules in browser
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      '@react-native-async-storage/async-storage': false,
+    };
+
     return config;
   },
   // Environment variables are now read from .env.local file

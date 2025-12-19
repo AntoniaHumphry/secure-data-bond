@@ -261,27 +261,27 @@ export function useSecureData(params: {
     }
 
     const attemptSubmit = async (attemptNumber: number): Promise<void> => {
-      try {
-        // Create encrypted contact info using real FHE
-        const encryptedContactInfo = await createEncryptedContactInfo(phone, email, emergency);
+    try {
+      // Create encrypted contact info using real FHE
+      const encryptedContactInfo = await createEncryptedContactInfo(phone, email, emergency);
 
         setMessage(`Submitting encrypted contact information to blockchain... (attempt ${attemptNumber}/${maxRetries})`);
 
-        // Submit transaction
-        const tx = await (contractWithSigner as any).submitContactInfo(
-          BigInt(encryptedContactInfo.handles[0]), // phoneNumber handle
-          encryptedContactInfo.inputProof as `0x${string}`, // phoneNumber inputProof
-          BigInt(encryptedContactInfo.handles[1]), // emailHash handle
-          encryptedContactInfo.inputProof as `0x${string}`, // emailHash inputProof
-          BigInt(encryptedContactInfo.handles[2]), // emergencyContact handle
-          encryptedContactInfo.inputProof as `0x${string}`  // emergencyContact inputProof
-        );
+      // Submit transaction
+      const tx = await (contractWithSigner as any).submitContactInfo(
+        BigInt(encryptedContactInfo.handles[0]), // phoneNumber handle
+        encryptedContactInfo.inputProof as `0x${string}`, // phoneNumber inputProof
+        BigInt(encryptedContactInfo.handles[1]), // emailHash handle
+        encryptedContactInfo.inputProof as `0x${string}`, // emailHash inputProof
+        BigInt(encryptedContactInfo.handles[2]), // emergencyContact handle
+        encryptedContactInfo.inputProof as `0x${string}`  // emergencyContact inputProof
+      );
 
-        await tx.wait();
+      await tx.wait();
 
-        setMessage("Contact information submitted successfully with FHE encryption!");
+      setMessage("Contact information submitted successfully with FHE encryption!");
         setRetryCount(0); // Reset retry count on success
-        setIsSubmitting(false);
+      setIsSubmitting(false);
 
       } catch (error) {
         console.error(`Submit attempt ${attemptNumber} failed:`, error);
@@ -303,9 +303,6 @@ export function useSecureData(params: {
     try {
       setIsSubmitting(true);
       await attemptSubmit(1);
-    } catch (error) {
-      // Error already handled in attemptSubmit
-    }
 
       // Store submitted data for local network mock decryption
       if (displayData) {
@@ -451,17 +448,24 @@ export function useSecureData(params: {
             if (currentData) {
               console.log('Using stored submitted data for mock decryption:', currentData);
 
-              // For contract validation, we need numeric values
-              // Parse stored string values back to numbers for finalizeDecryption
-              const phoneNum = parseInt(currentData.phone.replace(/\D/g, '')) || 10;
-              const emailNum = currentData.email; // Already numeric
-              const emergencyNum = parseInt(currentData.emergency.replace(/\D/g, '')) || 10;
-
-              // Ensure data meets contract validation requirements for finalizeDecryption
+              // For contract validation, we need numeric values that meet contract requirements
               // Contract requires: phone 10-99, email with @ and length >=5, emergency 10-99
-              decryptedPhone = Math.max(10, Math.min(99, phoneNum));
+              // For demo purposes, we'll convert the last 2 digits of phone/emergency to fit the range
+
+              // Extract last 2 digits from phone number, ensure it's in range 10-99
+              const phoneDigits = currentData.phone.replace(/\D/g, '');
+              const phoneLastTwo = phoneDigits.length >= 2 ?
+                parseInt(phoneDigits.slice(-2)) : 42; // Default to 42 if can't extract
+              decryptedPhone = Math.max(10, Math.min(99, phoneLastTwo || 42)); // Ensure minimum 10
+
+              const emailNum = currentData.email; // Already numeric
               decryptedEmail = emailNum;
-              decryptedEmergency = Math.max(10, Math.min(99, emergencyNum));
+
+              // Extract last 2 digits from emergency number, ensure it's in range 10-99
+              const emergencyDigits = currentData.emergency.replace(/\D/g, '');
+              const emergencyLastTwo = emergencyDigits.length >= 2 ?
+                parseInt(emergencyDigits.slice(-2)) : 24; // Default to 24 if can't extract
+              decryptedEmergency = Math.max(10, Math.min(99, emergencyLastTwo || 24)); // Ensure minimum 10
 
               // Ensure email is valid format for display
               if (!currentData.emailStr || !currentData.emailStr.includes('@') || currentData.emailStr.length < 5) {
